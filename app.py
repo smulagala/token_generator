@@ -26,7 +26,7 @@ def generate_token():
      'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=300)
                         },secret, algorithm='HS256')
     # encoded = encoded.encode()
-	return {'status': 'success', 'message': json.dumps(encoded.decode('utf-8'))}
+	return {'status': 'success', 'message': str(encoded.decode('utf-8'))}
 
 
 #Validaing the user and generating the token on success
@@ -60,33 +60,3 @@ def validate_token():
     except jwt.ExpiredSignatureError:
         return {'status': 'failed', 'message': 'Token expired'}
 	
-
-# @app.route('/users', methods=['POST'], cors=True)
-# def create_user():
-#     # This is the JSON body the user sent in their POST request.
-#     user_as_json = app.current_request.json_body
-#     username = user_as_json['username']
-#     password = user_as_json['password']
-#     return {'user': username, 'password': password}
-#     # We'll echo the json body back to the user in a 'user' key.
-#     return {'user': user_as_json}
-
-# The view function above will return {"hello": "world"}
-# whenever you make an HTTP GET request to '/'.
-#
-# Here are a few more examples:
-#
-# @app.route('/hello/{name}')
-# def hello_name(name):
-#    # '/hello/james' -> {"hello": "james"}
-#    return {'hello': name}
-#
-# @app.route('/users', methods=['POST'], cors=True)
-# def create_user():
-#     # This is the JSON body the user sent in their POST request.
-#     user_as_json = app.current_request.json_body
-#     # We'll echo the json body back to the user in a 'user' key.
-#     return {'user': user_as_json}
-#
-# See the README documentation for more examples.
-#
