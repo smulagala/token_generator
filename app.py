@@ -29,6 +29,7 @@ def generate_token():
 	return {'status': 'success', 'message': json.dumps(encoded.decode('utf-8'))}
 
 
+#Validaing the user and generating the token on success
 @app.route('/users', methods=['POST'], cors=True)
 def validate_user_and_generate_token():
     try:
@@ -40,12 +41,24 @@ def validate_user_and_generate_token():
         return generate_token()
     return {'status': 'failed', 'message': 'Invalid user credentials'}
 
+#Validating user with preloaded creds
 def validate_user(user_details= None):
-	if user_details:
-		if user_creds['username'] == user_details['username'] and user_creds['password'] == user_details['password']:
-			print('success')
-			return True
-	return False
+    if user_details:
+        if user_creds['username'] == user_details['username'] and user_creds['password'] == user_details['password']:
+            return True
+    return False
+
+@app.route('/validateToken', methods=['POST'], cors=True)
+def validate_token():
+    try:
+        token = app.current_request.json_body['token']
+    except Exception:
+        return {'status': 'failed', 'message': 'Please provide the token'}
+    try:
+        _ = jwt.decode(token, secret, leeway=10, algorithms=['HS256'])
+        return {'status':'success', 'message': 'Valid token'}
+    except jwt.ExpiredSignatureError:
+        return {'status': 'failed', 'message': 'Token expired'}
 	
 
 # @app.route('/users', methods=['POST'], cors=True)
