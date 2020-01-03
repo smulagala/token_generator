@@ -6,8 +6,9 @@ import json
 
 #Change this secret in prod
 secret = 'secret'
+refresh_constant = "Constant"
 #Mocking user details 
-user_creds = {"username": "mulagala", "password": "password"}
+user_creds = {"username": "user@bw.com", "password": "password"}
 app = Chalice(app_name='token_generator')
 
 
@@ -21,13 +22,21 @@ def index():
 
 #Generate the token
 @app.route('/generatetoken', methods=['POST'])
-def generate_token():
+def generate_access_token():
 	encoded= jwt.encode({'data': 'some_data',
-     'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=300)
+     'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60)
                         },secret, algorithm='HS256')
     # encoded = encoded.encode()
 	return {'status': 'success', 'message': str(encoded.decode('utf-8'))}
 
+
+def generate_refresh_token(username):
+    token_id = str(username)+''+ refresh_constant
+    encoded= jwt.encode({'data': 'some_data',
+     'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=60)
+                        },secret, algorithm='HS256')
+    # encoded = encoded.encode()
+	return str(encoded.decode('utf-8'))
 
 #Validaing the user and generating the token on success
 @app.route('/users', methods=['POST'], cors=True)
@@ -38,7 +47,10 @@ def validate_user_and_generate_token():
         return {'status': 'failed', 'message': 'Provide user credentials'}
     print(user_as_json)
     if validate_user(user_as_json):
-        return generate_token()
+        # return generate_token()
+        access_token = generate_access_token()
+        refresh_token = generate_refresh_token(user_as_json)
+        return {'status': 'success', 'access_token': access_token, 'refresh_token': refresh_token}
     return {'status': 'failed', 'message': 'Invalid user credentials'}
 
 #Validating user with preloaded creds
